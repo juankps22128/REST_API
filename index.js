@@ -1,13 +1,34 @@
 import express from "express";
 import bodyParser from "body-parser";
+import axios from "axios";
+
 
 const app = express();
 const port = 3000;
 const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
+const API_URL = "http://localhost:3000";
 
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 //1. GET a random joke
+/*app.get(API_URL + "/random", (req, res) => {                                //(req,res) es la devolucion de la llamada
+  const randomIndex = Math.floor(Math.random() * jokes.length);   //jokes.length es la longitud de la matriz 
+  res.json(jokes[randomIndex]);                                   //tomamos un chiste de la posición joke[5] y la enviamos a res que es la respuesta de la consulta
+});*/
+
+app.get ("/", async (req, res) => {
+    try {
+      const result = await axios.get(API_URL + "/random")
+      res.render("index.ejs", {
+        idChiste: result.data.id,
+        textoChiste: result.data.jokeType,
+        typeChiste: result.data.jokeText
+      })
+    } catch (error) {
+      res.render("index.ejs", error.response.data);
+    }
+});
 
 //2. GET a specific joke
 
@@ -27,6 +48,7 @@ app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
 
+//lista de chistes
 var jokes = [
   {
     id: 1,
