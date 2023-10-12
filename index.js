@@ -20,6 +20,11 @@ app.get("/random", (req, res) => {                                //(req,res) es
 });
 
 //2. GET a specific joke
+app.get("/jokes/:id", (req, res) => { 
+  const id = parseInt(req.params.id);                             // parseInt convierte el resultado en entero 
+  const foundJoke = jokes.find((joke) => joke.id === id);    //usamos el metodo find para buscar el joke.id de la matriz con el id del requerimiento, con el triple igual nos aseguramos que tanto el tipo de dato como su valor sean exactamente iguales
+  res.json(foundJoke);
+});
 
 //3. GET a jokes by filtering on the joke type
 
