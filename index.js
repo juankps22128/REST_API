@@ -20,19 +20,57 @@ app.get("/random", (req, res) => {                                //(req,res) es
 });
 
 //2. GET a specific joke
-app.get("/jokes/:id", (req, res) => { 
-  const id = parseInt(req.params.id);                             // parseInt convierte el resultado en entero 
-  const foundJoke = jokes.find((joke) => joke.id === id);    //usamos el metodo find para buscar el joke.id de la matriz con el id del requerimiento, con el triple igual nos aseguramos que tanto el tipo de dato como su valor sean exactamente iguales
+app.get("/jokes/:id", (req, res) => {         // "/jokes/:id" donde el :id es el requerimiento que ingresa a la api 
+  const id = parseInt(req.params.id);           // parseInt convierte el tipo de dato del requerimiento en entero aquí usamos PARAMS 
+  const foundJoke = jokes.find((joke) => joke.id === id);    //usamos el metodo .find para buscar en la matriz joke donde  joke.id de la matriz con el id del requerimiento, con el triple igual nos aseguramos que tanto el tipo de dato como su valor sean exactamente iguales
   res.json(foundJoke);
 });
 
 //3. GET a jokes by filtering on the joke type
+app.get("/filter", (req, res) => {         // "/filter" ya que el tipo y el valor del requerimiento ingresará  a la api 
+  const type = (req.query.type);                             // aquí usamos un QUERY eso indica en el documento de la api 
+  const filteredActivities = jokes.filter((joke) => joke.jokeType === type);    //usamos el metodo .filter para filtrar en la matriz joke donde  joke.jokeType de la matriz con el type del requerimiento, con el triple igual nos aseguramos que tanto el tipo de dato como su valor sean exactamente iguales
+  res.json(filteredActivities);
+});
 
-//4. POST a new joke
-
+//4. POST a new joke  post viene de express 
+app.post("/jokes", (req, res) => {
+  const newJoke = {         //crear nuevo objeto newJoke, el joke tiene tres campos id, joketext y joketype, segun la documentacion el id debe autgenerarse
+    id: jokes.length + 1,   // para id, buscamos la longitud de la matriz y le sumamos uno 
+    jokeText: req.body.text,  //es el texto que se envia en la solicitud (en este caso el postman)
+    jokeType: req.body.type,  // es el typo que se envia en la solicitud sería el segundo dato 
+  };
+  jokes.push(newJoke);  //insertamos el nuevo chiste en la ultima posicion (el id está dado por el id:jokes.length +1)
+  console.log(jokes.slice(-1));  //se mueve hacia el último registro de la matriz 
+  res.json(newJoke);    // responde con el nuevo joke 
+});
 //5. PUT a joke
+app.put("/jokes/:id", (req, res) =>{
+  const id = parseInt(req.params.id); //agarramos el id que vien en el parametro (PARAMS POSTMAN)de la solicitud y lo convertimos en entero
+  const replacementJoke ={  //creamos el nuevo objeto a ser insertado segun la info de la documentación del registro 
+    id: id,   //id es el id agarrado del parametro y hecho entero
+    jokeText: req.body.text, //agarramos el texto del body del requerimiento (BODY postman)  
+    jokeType: req.body.type, //agarramos el typo del body del requermiento (BODY postman) 
+  };
+  const searchIndex = jokes.findIndex((joke) => joke.id === id ); //metodo findIndex para buscar el índice deseado para comparar con el parametro de la solicitud
+  jokes[searchIndex] = replacementJoke; //accedemos a la matriz usando el índice encontrado searchIndex 
+  res.json(replacementJoke); //reenviamos al usuario el joke actualizado 
+});
 
 //6. PATCH a joke
+app.patch("/jokes/:id", (req, res) =>{
+  const id = parseInt (req.params.id); //agarramos el parametro del requerimiento
+  const existingJoke = jokes.find((joke) => joke.id === id ) //obtener el actual registro  comparando su id con el parametro ingresado en el requerimiento
+  const replacementJoke = {    //armar el objeto 
+    id: id, //el id será el mismo ya que es su índice 
+    jokeText: req.body.text || existingJoke.jokeText,  //toma el texto del body OR || el existente
+    jokeType: req.body.type || existingJoke.jokeType,  //toma el texto del body OR || el existente
+  };
+    const searchIndex = jokes.findIndex((joke) => joke.id === id); //encontramos el índice de la broma en la matriz 
+    jokes[searchIndex] = replacementJoke; //remmplazamos en la matriz jokes de la posición searchIndex   
+    res.json(replacementJoke); //devolvemos al cliente el resultado 
+}); 
+
 
 //7. DELETE Specific joke
 
