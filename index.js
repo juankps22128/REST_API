@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import { all } from "axios";
 
 //ESTA APLICACION ES PARA PUBLICAR MI PROPIO API QUE ES UNA MATRIZ DE CHISTES,
 //LA MATRIZ DE CHISTES ESTÁ AL FINAL DE ESTA CODIFICACIÓN
@@ -73,14 +74,39 @@ app.patch("/jokes/:id", (req, res) =>{
 
 
 //7. DELETE Specific joke
+app.delete("/jokes/:id", (req, res) => {
+  const id = parseInt(req.params.id); 
+  const searchIndex = jokes.findIndex((joke) => joke.id === id); //debemos buscar el INDEX por eso usamos el metodo findIndex que coincida con el parametro de la peticion
+  if (searchIndex > -1) {  //comprobamos si searchIndex es un número mayor a cero entonces 
+    jokes.splice (searchIndex, 1); //el método splice elimina solo un registro en la posición 
+    res
+      //.status (200) //envio el estado que todo está bien 
+      .json ({ ok:`chiste con el id ${id} BORRADO...!`});
+  } else {
+    res 
+      //.status(404)  //Mensaje de error HTML
+      .json({ error:`Chiste con el id: ${id} no encontrado. CHISTES NO BORRADOS `}); //MENSAJE PERSONALIZADO 
+  };
+
+});
 
 //8. DELETE All jokes
+app.delete("/all", (req, res) => {
+    const userKey = req.query.api;  //agarramos la clave ingresada en el requerimiento VERIFICAR los parametros en el postman key, value,  Add to (Query Params)
+    if (userKey === masterKey) {  //comparamos con la variable masterKey declarada al inicio de este codigo 
+      jokes = [];   //vaciamos la matriz
+      res.json ({ ok:`TODOS LOS CHISTES BORRADOS...!`});
+    } else {
+      res.json ({ error:`NO AUTORIZADO PARA ESTA ACCION...!`});
+    }; 
+});
+
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
 
-//lista de chistes
+//MATRIZ DE CHISTES "jokes" 
 var jokes = [
   {
     id: 1,
